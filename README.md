@@ -2,16 +2,16 @@
 
 ## Agora
 
-- [ ] Implementar edição das informações do perfil do usuário
+- [x] Implementar edição das informações do perfil do usuário
 - [ ] Alinhar com o front quais campos do perfil poderão ser editados
-- [ ] Definir o endpoint e o payload de atualização de perfil
-- [ ] Garantir que alterações no perfil reflitam corretamente nas configurações de precificação, quando aplicável
+- [x] Definir o endpoint e o payload de atualização de perfil
+- [x] Garantir que alterações no perfil reflitam corretamente nas configurações de precificação, quando aplicável
 
 ## Próximo passo
 
-- [ ] Criar o módulo de custos fixos mensais
-- [ ] Permitir cadastrar o valor do mês anterior para cada custo fixo
-- [ ] Separar conceitualmente custos fixos de insumos variáveis no backend
+- [x] Criar o módulo de custos fixos mensais
+- [x] Permitir cadastrar o valor do mês anterior para cada custo fixo
+- [x] Separar conceitualmente custos fixos de insumos variáveis no backend
 - [ ] Alinhar com o front a interface de cadastro, edição e visualização dos custos fixos
 - [ ] Implementar lembrete visual no front para o usuário atualizar os valores mensalmente
 - [ ] Definir a regra do lembrete para aparecer a partir de uma data fixa, como o dia 5 de cada mês
