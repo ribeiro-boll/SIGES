@@ -6,13 +6,11 @@ import com.bolota.historicodevendas.Resource.UserResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -54,12 +52,25 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody HashMap<String, String> loginInfo){
         if (loginInfo == null) return ResponseEntity.status(400).build();
+        if (loginInfo.get("login") == null || loginInfo.get("password") == null) return ResponseEntity.status(400).build();
         if (loginInfo.get("login").trim().isEmpty() || loginInfo.get("password").trim().isEmpty()) return ResponseEntity.status(400).build();
         if (!userResource.existsByLogin(loginInfo.get("login"))) return ResponseEntity.status(404).build();
-        if (userResource.existsByLogin(loginInfo.get("login")) && !passwordEncoder.matches(loginInfo.get("password"), userResource.getByLogin(loginInfo.get("login")).getPasswordHash())) return ResponseEntity.status(401).build();
+        if (!passwordEncoder.matches(loginInfo.get("password"), userResource.getByLogin(loginInfo.get("login")).getPasswordHash())) return ResponseEntity.status(401).build();
+
         return ResponseEntity.ok().body(issueLoginToken(loginInfo.get("login")));
     }
-    
+    @PatchMapping("/update")
+    public ResponseEntity<Void> updateUser(@AuthenticationPrincipal Jwt jwt, @RequestBody UserEntityDTO ueDTO){
+        if (ueDTO == null) return ResponseEntity.status(400).build();
+        if (jwt == null) return ResponseEntity.status(401).build();
+        if (ueDTO.getDaysWorkingWeekly() <= 0 || ueDTO.getDesiredMonthlyIncome() <= 0 || ueDTO.getHoursWorkingDaily() == 0) return ResponseEntity.status(406).build();
+        UserEntity ue = userResource.getByLogin(jwt.getSubject());
+        if (ue == null) return ResponseEntity.status(404).build();
+        ue.updateUserInfo(ueDTO);
+        userResource.save(ue);
+        return ResponseEntity.status(200).build();
+    }
+
     public String issueLoginToken(String login) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
@@ -72,4 +83,5 @@ public class UserController {
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
         return jwtEncoder.encode(JwtEncoderParameters.from(header,claims)).getTokenValue();
     }
+
 }

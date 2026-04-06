@@ -1,7 +1,9 @@
 package com.bolota.historicodevendas.Controller;
+import com.bolota.historicodevendas.Entities.PersistentEntities.FixedSuppliesEntityPersistent;
 import com.bolota.historicodevendas.Entities.PersistentEntities.ServiceEntityPersistent;
 import com.bolota.historicodevendas.Entities.PersistentEntities.SuppliesEntityPersistent;
 import com.bolota.historicodevendas.Entities.UserEntity;
+import com.bolota.historicodevendas.Resource.FixedSuppliesResource;
 import com.bolota.historicodevendas.Resource.ServiceResource;
 import com.bolota.historicodevendas.Resource.UserResource;
 import com.bolota.historicodevendas.Resource.VariableSuppliesResource;
@@ -38,12 +40,16 @@ public class MetricsController {
     @Autowired
     VariableSuppliesResource variableSuppliesResource;
 
+
+    @Autowired
+    FixedSuppliesResource fixedSuppliesResource;
+
     @GetMapping("/services")
     public ResponseEntity<Page<ServiceEntityPersistent>> sendServices(@AuthenticationPrincipal Jwt jwt, @PageableDefault(size = 10) Pageable pageable){
         if(jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
-        if (!userResource.existsByLogin(jwt.getSubject())) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
-        ArrayList<ServiceEntityPersistent> servicesInPossesion = new ArrayList<>();
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
+        if (ue == null) return ResponseEntity.status(404).build();
+        ArrayList<ServiceEntityPersistent> servicesInPossesion = new ArrayList<>();
         for (String UUIDs : ue.getServicesUUIDList()) {
             servicesInPossesion.add(serviceResource.getByUUID(UUIDs));
         }
@@ -52,11 +58,24 @@ public class MetricsController {
     @GetMapping("/supplies")
     public ResponseEntity<Page<SuppliesEntityPersistent>> sendSupplies(@AuthenticationPrincipal Jwt jwt, @PageableDefault(size = 10) Pageable pageable){
         if(jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+        UserEntity ue = userResource.getByLogin(jwt.getSubject());
+        if (ue == null) return ResponseEntity.status(404).build();
         if (!userResource.existsByLogin(jwt.getSubject())) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
         ArrayList<SuppliesEntityPersistent> suppliesInPossesion = new ArrayList<>();
-        UserEntity ue = userResource.getByLogin(jwt.getSubject());
         for (String UUIDs : ue.getVariableSuppliesUsedUUID()) {
             suppliesInPossesion.add(variableSuppliesResource.getByUUID(UUIDs));
+        }
+        return ResponseEntity.ok().body(toPage(suppliesInPossesion, pageable));
+    }
+    @GetMapping("/supplies_fixed")
+    public ResponseEntity<Page<FixedSuppliesEntityPersistent>> sendSuppliesFixed(@AuthenticationPrincipal Jwt jwt, @PageableDefault(size = 10) Pageable pageable){
+        if(jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+        UserEntity ue = userResource.getByLogin(jwt.getSubject());
+        if (ue == null) return ResponseEntity.status(404).build();
+        if (!userResource.existsByLogin(jwt.getSubject())) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
+        ArrayList<FixedSuppliesEntityPersistent> suppliesInPossesion = new ArrayList<>();
+        for (String UUIDs : ue.getFixedSuppliesUsedUUID()) {
+            suppliesInPossesion.add(fixedSuppliesResource.getByUUID(UUIDs));
         }
         return ResponseEntity.ok().body(toPage(suppliesInPossesion, pageable));
     }

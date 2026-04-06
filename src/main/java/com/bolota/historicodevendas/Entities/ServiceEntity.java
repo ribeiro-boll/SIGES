@@ -1,6 +1,6 @@
 package com.bolota.historicodevendas.Entities;
 
-import com.bolota.historicodevendas.Entities.DTO.ProductEntityDTO;
+import com.bolota.historicodevendas.Entities.DTO.ServiceEntityDTO;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,29 +23,20 @@ public class ServiceEntity {
     private int averageServiceDurationMinutes;
     private int quantity;
     private double salePrice;
+    private ArrayList<String> fixedSuppliesUsedUUID;
     private ArrayList<String> variableSuppliesUsedUUID;
     private HashMap<String, Double> suppliesQuantity;
 
-    private double profitMargin;
-    private double desiredAmountPerMonth;
-    private int daysWorking;
-    private double hoursWorking;
-    private double minutesWorking;
-
     private double costPerMinute;
 
-    private double sugestedPrice;
+    private double suggestedPrice;
 
     private double serviceExpenses;
 
     private double finalProfit;
-    public ServiceEntity(ProductEntityDTO peDTO, double serviceExpenses, double profitMargin,double desiredAmountPerMonth,int daysWorking, double hoursWorking){
-
-        this.profitMargin = profitMargin; // em porcentagem // double
-        this.desiredAmountPerMonth = desiredAmountPerMonth;// double
-        this.daysWorking = daysWorking; // int
-        this.hoursWorking = hoursWorking;// double
-        this.minutesWorking = this.hoursWorking * 60.0;// double
+    public ServiceEntity(ServiceEntityDTO peDTO, double serviceExpenses, double profitMargin, double desiredAmountPerMonth, int daysWorking, double hoursWorking){
+        double minutesWorking = hoursWorking * 60.0;
+        double monthlyWorkingMinutes = daysWorking * 4.33 * minutesWorking;
 
 
         this.name = peDTO.getName();
@@ -55,11 +46,13 @@ public class ServiceEntity {
         this.salePrice = peDTO.getSalePrice();
         this.quantity = peDTO.getQuantity();
         this.serviceExpenses = serviceExpenses;
-        this.costPerMinute = this.desiredAmountPerMonth/(this.daysWorking * this.minutesWorking);
         this.averageServiceDurationMinutes = peDTO.getAverageServiceDurationMinutes();
         this.variableSuppliesUsedUUID = peDTO.getVariableSuppliesUsedUUID();
         this.suppliesQuantity = peDTO.getVariableSuppliesQuantityUsed();
+        this.costPerMinute = desiredAmountPerMonth/(daysWorking * 4.33 * minutesWorking);
         this.finalProfit = salePrice - (serviceExpenses + this.averageServiceDurationMinutes * this.costPerMinute);
-        this.sugestedPrice =(this.averageServiceDurationMinutes * this.costPerMinute + serviceExpenses) + ((this.averageServiceDurationMinutes * this.costPerMinute + serviceExpenses) * (profitMargin)/100);
+        this.suggestedPrice =(this.averageServiceDurationMinutes * this.costPerMinute + serviceExpenses) + ((this.averageServiceDurationMinutes * this.costPerMinute + serviceExpenses) * (profitMargin)/100);
+        fixedSuppliesUsedUUID = peDTO.getFixedSuppliesUsedUUID();
+        variableSuppliesUsedUUID = peDTO.getVariableSuppliesUsedUUID();
     }
 }

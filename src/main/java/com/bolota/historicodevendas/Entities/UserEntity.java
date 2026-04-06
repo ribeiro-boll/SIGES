@@ -33,6 +33,7 @@ public class UserEntity {
     private double profitMargin;
     private ArrayList<String> servicesUUIDList;
     private ArrayList<String> variableSuppliesUsedUUID;
+    private ArrayList<String> fixedSuppliesUsedUUID;
     public UserEntity(UserEntityDTO userEntityDTO, String passwordHash){
         this.login = userEntityDTO.getLogin();
         this.passwordHash = passwordHash;
@@ -42,5 +43,12 @@ public class UserEntity {
         this.profitMargin = userEntityDTO.getProfitMargin();
         this.servicesUUIDList = new ArrayList<>();
         this.variableSuppliesUsedUUID = new ArrayList<>();
+        this.fixedSuppliesUsedUUID = new ArrayList<>();
+    }
+    public void updateUserInfo(UserEntityDTO userEntityDTO){
+        this.desiredMonthlyIncome = userEntityDTO.getDesiredMonthlyIncome();
+        this.daysWorkingWeekly = userEntityDTO.getDaysWorkingWeekly();
+        this.hoursWorkingDaily = userEntityDTO.getHoursWorkingDaily();
+        this.profitMargin = userEntityDTO.getProfitMargin();
     }
 }

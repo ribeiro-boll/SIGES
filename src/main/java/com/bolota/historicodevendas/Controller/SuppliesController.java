@@ -1,9 +1,11 @@
 package com.bolota.historicodevendas.Controller;
 
-import com.bolota.historicodevendas.Entities.DTO.ProductEntityDTO;
+import com.bolota.historicodevendas.Entities.FixedSuppliesEntity;
+import com.bolota.historicodevendas.Entities.PersistentEntities.FixedSuppliesEntityPersistent;
 import com.bolota.historicodevendas.Entities.PersistentEntities.SuppliesEntityPersistent;
 import com.bolota.historicodevendas.Entities.SuppliesEntity;
 import com.bolota.historicodevendas.Entities.UserEntity;
+import com.bolota.historicodevendas.Resource.FixedSuppliesResource;
 import com.bolota.historicodevendas.Resource.UserResource;
 import com.bolota.historicodevendas.Resource.VariableSuppliesResource;
 import jakarta.transaction.Transactional;
@@ -21,39 +23,69 @@ public class SuppliesController {
     VariableSuppliesResource variableSuppliesResource;
 
     @Autowired
+    FixedSuppliesResource fixedSuppliesResource;
+
+    @Autowired
     UserResource userResource;
 
     //TODO: implementar autenticação usando token JWT
     @PostMapping("/register")
     public ResponseEntity<Void> registerSupply(@AuthenticationPrincipal Jwt jwt, @RequestBody SuppliesEntity se){
         if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
-        if (!userResource.existsByLogin(jwt.getSubject()) ) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
-        if (se.getProductValue() == 0 || se.getName().trim().isBlank() || se.getMeasure() == 0){
+        UserEntity ue = userResource.getByLogin(jwt.getSubject());
+        if (ue == null || se == null) return ResponseEntity.status(404).build();
+        if (se.getProductValue() <= 0 || se.getName().trim().isBlank() || se.getMeasure() <= 0){
             return new ResponseEntity<>(HttpStatusCode.valueOf(400));
         }
         String UUIDgen = genUUID();
         SuppliesEntityPersistent sep = new SuppliesEntityPersistent(se, UUIDgen);
-        UserEntity ue = userResource.getByLogin(jwt.getSubject());
         ue.getVariableSuppliesUsedUUID().add(UUIDgen);
         userResource.save(ue);
         variableSuppliesResource.save(sep);
         return new ResponseEntity<>(HttpStatusCode.valueOf(200));
     }
+    @PostMapping("/register_fixed")
+    public ResponseEntity<Void> registerFixedSupply(@AuthenticationPrincipal Jwt jwt, @RequestBody FixedSuppliesEntity fe){
+        if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+        UserEntity ue = userResource.getByLogin(jwt.getSubject());
+        if (ue == null || fe == null) return ResponseEntity.status(404).build();
+        if (fe.getSuppliesValue() <= 0 || fe.getName().trim().isBlank()){
+            return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+        }
+        String UUIDgen = genUUID();
+        FixedSuppliesEntityPersistent sep = new FixedSuppliesEntityPersistent(fe, UUIDgen);
+        ue.getFixedSuppliesUsedUUID().add(UUIDgen);
+        userResource.save(ue);
+        fixedSuppliesResource.save(sep);
+        return new ResponseEntity<>(HttpStatusCode.valueOf(200));
+    }
 
+    @Transactional
+    @DeleteMapping("/remove_fixed")
+    public ResponseEntity<Void> deleteFixedSupply(@AuthenticationPrincipal Jwt jwt, @RequestBody String productUUID) {
+        if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
+        FixedSuppliesEntityPersistent fse= fixedSuppliesResource.getByUUID(productUUID);
+        if (fse == null) return new ResponseEntity<>(HttpStatusCode.valueOf(409));
+        if (fse.getCounterInUseByServices() !=0) return new ResponseEntity<>(HttpStatusCode.valueOf(406));
+        UserEntity ue = userResource.getByLogin(jwt.getSubject());
+        if (ue == null) return ResponseEntity.status(404).build();
+        if(!ue.getFixedSuppliesUsedUUID().contains((String)productUUID)) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
+        ue.getFixedSuppliesUsedUUID().remove((String)productUUID);
+        fixedSuppliesResource.removeByUUID(productUUID);
+        userResource.save(ue);
+        return new ResponseEntity<>(HttpStatusCode.valueOf(200));
+    }
     @Transactional
     @DeleteMapping("/remove")
     public ResponseEntity<Void> deleteSupply(@AuthenticationPrincipal Jwt jwt, @RequestBody String productUUID) {
         if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
-        if (!userResource.existsByLogin(jwt.getSubject())) return new ResponseEntity<>(HttpStatusCode.valueOf(404));
-        if (variableSuppliesResource.getByUUID(productUUID) == null){
-            return new ResponseEntity<>(HttpStatusCode.valueOf(409));
-        }
-        if (variableSuppliesResource.getByUUID(productUUID).getCounterInUseByServices() !=0){
-            return new ResponseEntity<>(HttpStatusCode.valueOf(406));
-        }
+        SuppliesEntityPersistent vse = variableSuppliesResource.getByUUID(productUUID);
+        if (vse == null) return new ResponseEntity<>(HttpStatusCode.valueOf(409));
+        if (vse.getCounterInUseByServices() != 0) return new ResponseEntity<>(HttpStatusCode.valueOf(406));
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
-        if(!ue.getVariableSuppliesUsedUUID().contains((String)productUUID)) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
-        ue.getVariableSuppliesUsedUUID().remove((String)productUUID);
+        if (ue == null) return ResponseEntity.status(404).build();
+        if (!ue.getVariableSuppliesUsedUUID().contains((String) productUUID)) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
+        ue.getVariableSuppliesUsedUUID().remove((String) productUUID);
         variableSuppliesResource.removeByUUID(productUUID);
         userResource.save(ue);
         return new ResponseEntity<>(HttpStatusCode.valueOf(200));

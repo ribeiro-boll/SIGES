@@ -3,7 +3,10 @@ package com.bolota.historicodevendas.Entities.PersistentEntities;
 import com.bolota.historicodevendas.Entities.ServiceEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import tools.jackson.databind.ObjectMapper;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 
 import static com.bolota.historicodevendas.Service.ProductService.genJSON;
@@ -24,7 +27,7 @@ public class ServiceEntityPersistent {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = true)
     private String description;
 
     @Column(name = "service_type", nullable = false)
@@ -48,27 +51,36 @@ public class ServiceEntityPersistent {
     @Column(name = "sugestedPrice", nullable = false)
     private double sugestedPrice;
 
-    @Column(name = "suppliesUsed", nullable = false)
-    private ArrayList<String> suppliesUsed;
+    @Column(name = "variableSuppliesUsed", nullable = true)
+    private ArrayList<String> variableSuppliesUsedUUID;
+
+    @Column(name = "fixedSuppliesUsed", nullable = true)
+    private ArrayList<String> fixedSuppliesUsedUUID;
 
     @Column(name = "UUID", nullable = false)
     private String UUID;
 
-    @Column(name = "suppliesQuantity", nullable = false)
+    @Column(name = "serviceDate", nullable = false)
+    private LocalDate serviceDate;
+
+    @Column(name = "suppliesQuantity", nullable = true)
     private String suppliesQuantity; // mapper to json
 
     public ServiceEntityPersistent(ServiceEntity pe, String UUID){
+        this.serviceDate = LocalDate.now(ZoneId.of("America/Sao_Paulo"));
         this.name = pe.getName();
         this.description = pe.getDescription();
         this.serviceType = pe.getServiceType();
         this.category = pe.getCategory();
-        this.UUID = UUID;
         this.salePrice = pe.getSalePrice();
-        this.sugestedPrice = pe.getSugestedPrice();
         this.liquidProfit = pe.getFinalProfit();
-        this.quantity = pe.getQuantity();
-        this.averageServiceDurationMinutes = pe.getAverageServiceDurationMinutes();
-        this.suppliesUsed = pe.getVariableSuppliesUsedUUID();
+        this.sugestedPrice = pe.getSuggestedPrice();
+        this.variableSuppliesUsedUUID = pe.getVariableSuppliesUsedUUID();
         this.suppliesQuantity = genJSON(pe.getSuppliesQuantity());
+        this.fixedSuppliesUsedUUID = pe.getFixedSuppliesUsedUUID();
+        this.UUID = UUID;
+    }
+    public boolean checkIfNull(){
+        return this.name == null || this.serviceType == null || this.category == null || this.variableSuppliesUsedUUID == null || this.fixedSuppliesUsedUUID == null || this.UUID == null || this.suppliesQuantity == null;
     }
 }
