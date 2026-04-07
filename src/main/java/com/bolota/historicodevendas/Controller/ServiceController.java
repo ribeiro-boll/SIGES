@@ -42,7 +42,7 @@ public class ServiceController {
         int condInvalid = 0;
         if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
-        if (ue == null) return ResponseEntity.status(404).build();
+        if (ue == null) return ResponseEntity.status(401).build();
         if (peDTO == null) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
         if (peDTO.checkIfNull()) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
         if (!peDTO.getVariableSuppliesUsedUUID().isEmpty()){
@@ -101,7 +101,7 @@ public class ServiceController {
     public ResponseEntity<Void> deleteService(@AuthenticationPrincipal Jwt jwt, @RequestBody String productUUID){
         if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
-        if (ue == null) return ResponseEntity.status(404).build();
+        if (ue == null) return ResponseEntity.status(401).build();
         if (productUUID == null) return ResponseEntity.status(400).build();
         ServiceEntityPersistent se = serviceResource.getByUUID(productUUID);
         if (se != null){
@@ -117,7 +117,6 @@ public class ServiceController {
                     }
                 }
             }
-
             FixedSuppliesEntityPersistent fixedTempSupply;
             if (se.getFixedSuppliesUsedUUID() != null) {
                 if (!se.getFixedSuppliesUsedUUID().isEmpty()) {

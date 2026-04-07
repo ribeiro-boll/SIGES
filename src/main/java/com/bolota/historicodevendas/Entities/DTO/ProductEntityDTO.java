@@ -19,7 +19,7 @@ public class ProductEntityDTO {
     private int quantity;
     private int averageServiceDurationMinutes;
     private double salePrice;
-    private ArrayList<String> variableSuppliesUsedUUID; // armazena nomes
+    private ArrayList<String> variableSuppliesUsedUUID;
     private HashMap<String,Double> variableSuppliesQuantityUsed;
     private String serviceNotes;
 

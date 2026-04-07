@@ -12,13 +12,15 @@ import org.springframework.security.web.SecurityFilterChain;
 public class EndpointSecurity {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        //TODO: configurar endpoints corretamente
         http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**").disable()).headers(h -> h.frameOptions(f -> f.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/cadastro").permitAll()
                         .requestMatchers("/user/login").permitAll()
                         .requestMatchers("/user/register").permitAll()
                         .requestMatchers("/assets/**").permitAll()
+                        .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/").permitAll()
                         .anyRequest().authenticated()
                 )

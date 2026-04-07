@@ -51,9 +51,10 @@ public class ServiceEntityPersistent {
     @Column(name = "sugestedPrice", nullable = false)
     private double sugestedPrice;
 
+    @Lob
     @Column(name = "variableSuppliesUsed", nullable = true)
     private ArrayList<String> variableSuppliesUsedUUID;
-
+    @Lob
     @Column(name = "fixedSuppliesUsed", nullable = true)
     private ArrayList<String> fixedSuppliesUsedUUID;
 
@@ -75,6 +76,7 @@ public class ServiceEntityPersistent {
         this.salePrice = pe.getSalePrice();
         this.liquidProfit = pe.getFinalProfit();
         this.sugestedPrice = pe.getSuggestedPrice();
+        this.averageServiceDurationMinutes = pe.getAverageServiceDurationMinutes();
         this.variableSuppliesUsedUUID = pe.getVariableSuppliesUsedUUID();
         this.suppliesQuantity = genJSON(pe.getSuppliesQuantity());
         this.fixedSuppliesUsedUUID = pe.getFixedSuppliesUsedUUID();

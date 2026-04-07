@@ -37,7 +37,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody UserEntityDTO ueDTO){
         if (ueDTO == null) return ResponseEntity.status(400).build();
-        if (ueDTO.getLogin().trim().isEmpty() || ueDTO.getPasswordHash().trim().isEmpty()) return ResponseEntity.status(400).build();
+        if (ueDTO.getLogin().trim().isEmpty() || ueDTO.getPasswordHash().trim().isEmpty() || ueDTO.getHoursWorkingDaily()>20 || ueDTO.getDaysWorkingWeekly()>7) return ResponseEntity.status(400).build();
         if (ueDTO.getDaysWorkingWeekly() == 0 || ueDTO.getDesiredMonthlyIncome() == 0 || ueDTO.getHoursWorkingDaily() == 0) return ResponseEntity.status(406).build();
         if (userResource.existsByLogin(ueDTO.getLogin())) return ResponseEntity.status(409).build();
         UserEntity ue = new UserEntity(ueDTO, passwordEncoder.encode(ueDTO.getPasswordHash()));
@@ -56,7 +56,6 @@ public class UserController {
         if (loginInfo.get("login").trim().isEmpty() || loginInfo.get("password").trim().isEmpty()) return ResponseEntity.status(400).build();
         if (!userResource.existsByLogin(loginInfo.get("login"))) return ResponseEntity.status(404).build();
         if (!passwordEncoder.matches(loginInfo.get("password"), userResource.getByLogin(loginInfo.get("login")).getPasswordHash())) return ResponseEntity.status(401).build();
-
         return ResponseEntity.ok().body(issueLoginToken(loginInfo.get("login")));
     }
     @PatchMapping("/update")
@@ -65,7 +64,8 @@ public class UserController {
         if (jwt == null) return ResponseEntity.status(401).build();
         if (ueDTO.getDaysWorkingWeekly() <= 0 || ueDTO.getDesiredMonthlyIncome() <= 0 || ueDTO.getHoursWorkingDaily() == 0) return ResponseEntity.status(406).build();
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
-        if (ue == null) return ResponseEntity.status(404).build();
+        if (ueDTO.getHoursWorkingDaily()>20 || ueDTO.getDaysWorkingWeekly()>7) return ResponseEntity.status(400).build();
+        if (ue == null) return ResponseEntity.status(401).build();
         ue.updateUserInfo(ueDTO);
         userResource.save(ue);
         return ResponseEntity.status(200).build();

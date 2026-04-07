@@ -26,15 +26,21 @@ public class FixedSuppliesEntityPersistent {
     private LocalDate fixedSupplyDate;
     private Double costPerMinute;
     private int counterInUseByServices;
+    private boolean condUpdatePopup;
+
 
     public FixedSuppliesEntityPersistent(FixedSuppliesEntity se, String UUID){
         this.name = se.getName();
         this.description = se.getDescription();
         this.supplyTotalCost = se.getSuppliesValue();
         this.counterInUseByServices = 0;
+        this.condUpdatePopup = true;
         this.fixedSupplyDate = LocalDate.now(ZoneId.of("America/Sao_Paulo"));
-        this.costPerMinute = this.supplyTotalCost/(getDaysInMonth(this.fixedSupplyDate.getMonthValue()) * 24 * 60);
+        generateCostPerMinute();
         this.UUID = UUID;
+    }
+    public void generateCostPerMinute(){
+        this.costPerMinute = this.supplyTotalCost/(getDaysInMonth(this.fixedSupplyDate.getMonthValue()) * 24 * 60);
     }
     public int getDaysInMonth(int month) {
         return switch (month) {

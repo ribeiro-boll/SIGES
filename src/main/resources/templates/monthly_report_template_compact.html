@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Extrato Mensal</title>
+    <style>
+        @page {
+            margin: 18mm 14mm 16mm 14mm;
+
+            @top-center {
+                content: "Extrato Mensal";
+                font-size: 9px;
+                color: #6b7280;
+            }
+
+            @bottom-right {
+                content: "Página " counter(page) " de " counter(pages);
+                font-size: 9px;
+                color: #6b7280;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1f2937;
+            margin: 0;
+            font-size: 11px;
+            line-height: 1.35;
+            background: #ffffff;
+        }
+
+        .report {
+            width: 100%;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 0 8px;
+        }
+
+        .header {
+            border-bottom: 2px solid #111827;
+            padding: 0 4px 12px 4px;
+            margin-bottom: 18px;
+        }
+
+        .title {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            margin: 5px 0 0 0;
+            font-size: 13px;
+            color: #4b5563;
+        }
+
+        .meta {
+            margin-top: 10px;
+            font-size: 10px;
+            color: #6b7280;
+        }
+
+        .editable-note {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+
+        .section-title {
+            margin: 0 4px 10px 4px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .summary-grid {
+            width: 100%;
+            margin-bottom: 18px;
+            border-collapse: separate;
+            border-spacing: 10px 0;
+        }
+
+        .summary-card {
+            width: 50%;
+            vertical-align: top;
+            padding: 12px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+
+        .summary-label {
+            margin: 0 0 6px 0;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+        }
+
+        .summary-value {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .summary-support {
+            margin: 6px 0 0 0;
+            font-size: 10px;
+            color: #6b7280;
+        }
+
+        .services-wrapper {
+            margin-top: 6px;
+        }
+
+        .service-card {
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            background: #ffffff;
+        }
+
+        .service-top {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        .service-top td {
+            vertical-align: top;
+        }
+
+        .service-name {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .service-date {
+            text-align: right;
+            font-size: 10px;
+            color: #6b7280;
+            white-space: nowrap;
+        }
+
+        .service-description {
+            margin: 5px 0 0 0;
+            color: #4b5563;
+            font-size: 10px;
+        }
+
+        .service-grid {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .service-grid td {
+            width: 25%;
+            padding: 6px 8px;
+            border-top: 1px solid #e5e7eb;
+            vertical-align: top;
+            word-wrap: break-word;
+        }
+
+        .label {
+            display: block;
+            font-size: 10px;
+            color: #6b7280;
+            margin-bottom: 2px;
+        }
+
+        .value {
+            display: block;
+            font-weight: 700;
+        }
+
+        .notes-row {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 10px;
+            color: #4b5563;
+        }
+
+        .notes-label {
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .footer {
+            margin-top: 18px;
+            padding-top: 10px;
+            border-top: 1px solid #d1d5db;
+            font-size: 10px;
+            color: #6b7280;
+        }
+
+        .empty-state {
+            border: 1px dashed #d1d5db;
+            border-radius: 10px;
+            padding: 16px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+<div class="report">
+    <div class="header">
+        <h1 class="title">
+            Extrato mensal - <span th:text="${report.monthName}">Abril</span>
+            <span th:text="${report.year}">2026</span>
+        </h1>
+
+        <p class="subtitle" th:text="${report.subtitle}">
+            Relatório consolidado dos serviços realizados no mês.
+        </p>
+
+        <div class="meta">
+            <div>
+                Gerado em:
+                <span th:text="${report.generatedAtFormatted}">06/04/2026 14:32</span>
+            </div>
+            <div>
+                Período:
+                <span th:text="${report.periodLabel}">01/04/2026 até 30/04/2026</span>
+            </div>
+        </div>
+
+        <div class="editable-note">
+            <strong>Observações do relatório:</strong>
+            <div th:text="${report.customMessage}">
+                Espaço editável para avisos, resumo manual, observações do mês ou mensagens personalizadas.
+            </div>
+        </div>
+    </div>
+
+    <h2 class="section-title">Resumo do mês</h2>
+    <table class="summary-grid" role="presentation">
+        <tr>
+            <td class="summary-card">
+                <p class="summary-label">Total bruto</p>
+                <p class="summary-value"
+                   th:text="${'R$ ' + #numbers.formatDecimal(report.totalGross, 1, 'POINT', 2, 'COMMA')}">
+                    R$ 2400,00
+                </p>
+                <p class="summary-support">
+                    Total de serviços:
+                    <span th:text="${report.totalServices}">12</span>
+                </p>
+            </td>
+            <td class="summary-card">
+                <p class="summary-label">Lucro total</p>
+                <p class="summary-value"
+                   th:text="${'R$ ' + #numbers.formatDecimal(report.totalProfit, 1, 'POINT', 2, 'COMMA')}">
+                    R$ 1580,00
+                </p>
+                <p class="summary-support">
+                    Ticket médio:
+                    <span th:text="${'R$ ' + #numbers.formatDecimal(report.averageTicket, 1, 'POINT', 2, 'COMMA')}">R$ 200,00</span>
+                </p>
+            </td>
+        </tr>
+    </table>
+
+    <h2 class="section-title">Serviços do mês</h2>
+
+    <div class="services-wrapper" th:if="${report.services != null and !report.services.isEmpty()}">
+        <div class="service-card" th:each="service : ${report.services}">
+            <table class="service-top" role="presentation">
+                <tr>
+                    <td>
+                        <h3 class="service-name" th:text="${service.name}">Corte + finalização</h3>
+                        <p class="service-description" th:text="${service.description}">
+                            Descrição do serviço realizado.
+                        </p>
+                    </td>
+                    <td class="service-date">
+                        <div><strong>Data</strong></div>
+                        <div th:text="${service.serviceDateFormatted}">12/04/2026</div>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="service-grid" role="presentation">
+                <tr>
+                    <td>
+                        <span class="label">Tipo</span>
+                        <span class="value" th:text="${service.serviceType}">SERVICE</span>
+                    </td>
+                    <td>
+                        <span class="label">Categoria</span>
+                        <span class="value" th:text="${service.category}">Cabelo</span>
+                    </td>
+                    <td>
+                        <span class="label">Duração</span>
+                        <span class="value">
+                            <span th:text="${service.averageServiceDurationMinutes}">60</span> min
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="label">Preço de venda</span>
+                        <span class="value" th:text="${'R$ ' + #numbers.formatDecimal(service.salePrice, 1, 'POINT', 2, 'COMMA')}">R$ 100,00</span>
+                    </td>
+                    <td>
+                        <span class="label">Preço sugerido</span>
+                        <span class="value" th:text="${'R$ ' + #numbers.formatDecimal(service.suggestedPrice, 1, 'POINT', 2, 'COMMA')}">R$ 125,00</span>
+                    </td>
+                    <td>
+                        <span class="label">Despesas</span>
+                        <span class="value" th:text="${'R$ ' + #numbers.formatDecimal(service.serviceExpenses, 1, 'POINT', 2, 'COMMA')}">R$ 30,00</span>
+                    </td>
+                    <td>
+                        <span class="label">Lucro final</span>
+                        <span class="value" th:text="${'R$ ' + #numbers.formatDecimal(service.finalProfit, 1, 'POINT', 2, 'COMMA')}">R$ 55,00</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="empty-state" th:if="${report.services == null or report.services.isEmpty()}">
+        Nenhum serviço foi encontrado para o período selecionado.
+    </div>
+
+    <div class="footer">
+        Documento gerado automaticamente pelo sistema de histórico de vendas.
+    </div>
+</div>
+</body>
+</html>

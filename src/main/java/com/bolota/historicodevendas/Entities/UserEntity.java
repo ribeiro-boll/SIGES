@@ -31,8 +31,11 @@ public class UserEntity {
     private int daysWorkingWeekly;
     private double hoursWorkingDaily;
     private double profitMargin;
+    @Lob
     private ArrayList<String> servicesUUIDList;
+    @Lob
     private ArrayList<String> variableSuppliesUsedUUID;
+    @Lob
     private ArrayList<String> fixedSuppliesUsedUUID;
     public UserEntity(UserEntityDTO userEntityDTO, String passwordHash){
         this.login = userEntityDTO.getLogin();

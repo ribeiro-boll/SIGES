@@ -28,12 +28,11 @@ public class SuppliesController {
     @Autowired
     UserResource userResource;
 
-    //TODO: implementar autenticação usando token JWT
     @PostMapping("/register")
     public ResponseEntity<Void> registerSupply(@AuthenticationPrincipal Jwt jwt, @RequestBody SuppliesEntity se){
-        if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+        if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
-        if (ue == null || se == null) return ResponseEntity.status(404).build();
+        if (ue == null || se == null) return ResponseEntity.status(401).build();
         if (se.getProductValue() <= 0 || se.getName().trim().isBlank() || se.getMeasure() <= 0){
             return new ResponseEntity<>(HttpStatusCode.valueOf(400));
         }
@@ -46,9 +45,9 @@ public class SuppliesController {
     }
     @PostMapping("/register_fixed")
     public ResponseEntity<Void> registerFixedSupply(@AuthenticationPrincipal Jwt jwt, @RequestBody FixedSuppliesEntity fe){
-        if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+        if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
-        if (ue == null || fe == null) return ResponseEntity.status(404).build();
+        if (ue == null || fe == null) return ResponseEntity.status(401).build();
         if (fe.getSuppliesValue() <= 0 || fe.getName().trim().isBlank()){
             return new ResponseEntity<>(HttpStatusCode.valueOf(400));
         }
@@ -68,7 +67,7 @@ public class SuppliesController {
         if (fse == null) return new ResponseEntity<>(HttpStatusCode.valueOf(409));
         if (fse.getCounterInUseByServices() !=0) return new ResponseEntity<>(HttpStatusCode.valueOf(406));
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
-        if (ue == null) return ResponseEntity.status(404).build();
+        if (ue == null) return ResponseEntity.status(401).build();
         if(!ue.getFixedSuppliesUsedUUID().contains((String)productUUID)) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
         ue.getFixedSuppliesUsedUUID().remove((String)productUUID);
         fixedSuppliesResource.removeByUUID(productUUID);
@@ -83,11 +82,32 @@ public class SuppliesController {
         if (vse == null) return new ResponseEntity<>(HttpStatusCode.valueOf(409));
         if (vse.getCounterInUseByServices() != 0) return new ResponseEntity<>(HttpStatusCode.valueOf(406));
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
-        if (ue == null) return ResponseEntity.status(404).build();
+        if (ue == null) return ResponseEntity.status(401).build();
         if (!ue.getVariableSuppliesUsedUUID().contains((String) productUUID)) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
         ue.getVariableSuppliesUsedUUID().remove((String) productUUID);
         variableSuppliesResource.removeByUUID(productUUID);
         userResource.save(ue);
+        return new ResponseEntity<>(HttpStatusCode.valueOf(200));
+    }
+
+    @PatchMapping("/edit_fixedSupply")
+    public ResponseEntity<Void> editFixedSuppply(@AuthenticationPrincipal Jwt jwt, @RequestBody FixedSuppliesEntityPersistent fsep) {
+        if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
+        if (fsep == null) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+        if (fsep.getUUID() == null) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+        FixedSuppliesEntityPersistent fsepLocalEntity = fixedSuppliesResource.getByUUID(fsep.getUUID());
+        if (fsepLocalEntity == null) return new ResponseEntity<>(HttpStatusCode.valueOf(404));
+        UserEntity ue = userResource.getByLogin(jwt.getSubject());
+        if (ue == null) return ResponseEntity.status(401).build();
+        if(!ue.getFixedSuppliesUsedUUID().contains((String)fsep.getUUID())) return new ResponseEntity<>(HttpStatusCode.valueOf(403));
+        fsepLocalEntity.setCounterInUseByServices(fsep.getCounterInUseByServices());
+        fsepLocalEntity.setDescription(fsep.getDescription());
+        fsepLocalEntity.setFixedSupplyDate(fsep.getFixedSupplyDate());
+        fsepLocalEntity.setName(fsep.getName());
+        fsepLocalEntity.setSupplyTotalCost(fsep.getSupplyTotalCost());
+        fsepLocalEntity.setCondUpdatePopup(fsep.isCondUpdatePopup());
+        fsepLocalEntity.generateCostPerMinute();
+        fixedSuppliesResource.save(fsepLocalEntity);
         return new ResponseEntity<>(HttpStatusCode.valueOf(200));
     }
     public String genUUID(){
