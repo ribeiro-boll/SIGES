@@ -10,6 +10,7 @@ import com.bolota.historicodevendas.Resource.FixedSuppliesResource;
 import com.bolota.historicodevendas.Resource.ServiceResource;
 import com.bolota.historicodevendas.Resource.UserResource;
 import com.bolota.historicodevendas.Resource.VariableSuppliesResource;
+import com.bolota.historicodevendas.Service.ServicesService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
@@ -26,67 +27,27 @@ import java.util.Map;
 @RestController
 @RequestMapping("/product")
 public class ServiceController {
-    @Autowired
     ServiceResource serviceResource;
-    @Autowired
-    VariableSuppliesResource variableSuppliesResource;
-    @Autowired
-    FixedSuppliesResource fixedSuppliesResource;
-    @Autowired
-    UserController userController;
-    @Autowired
-    private UserResource userResource;
+    UserResource userResource;
+    ServicesService servicesService;
+    public ServiceController(ServiceResource serviceResource, UserResource userResource, ServicesService servicesService){
+        this.servicesService = servicesService;
+        this.userResource = userResource;
+        this.serviceResource = serviceResource;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<String> registerService(@AuthenticationPrincipal Jwt jwt, @RequestBody ServiceEntityDTO peDTO){
-        int condInvalid = 0;
+
         if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
         if (ue == null) return ResponseEntity.status(401).build();
         if (peDTO == null) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
         if (peDTO.checkIfNull()) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
-        if (!peDTO.getVariableSuppliesUsedUUID().isEmpty()){
-            SuppliesEntityPersistent tempSupply;
-            for(int i =0; i< peDTO.getVariableSuppliesUsedUUID().size(); i++){
-                if (!variableSuppliesResource.existsByUUID(peDTO.getVariableSuppliesUsedUUID().get(i))){
-                    return new ResponseEntity<>(HttpStatusCode.valueOf(400));
-                }
-                if (peDTO.getVariableSuppliesQuantityUsed().get(peDTO.getVariableSuppliesUsedUUID().get(i))== 0){
-                    return new ResponseEntity<>(HttpStatusCode.valueOf(406));
-                }
-                tempSupply = variableSuppliesResource.getByUUID(peDTO.getVariableSuppliesUsedUUID().get(i));
-                int quantity = tempSupply.getCounterInUseByServices();
-                tempSupply.setCounterInUseByServices(quantity+ 1);
-                variableSuppliesResource.save(tempSupply);
-                tempSupply = null;
-            }
-        }
-        else{
-            condInvalid++;
-        }
-        if (!peDTO.getFixedSuppliesUsedUUID().isEmpty()){
-            FixedSuppliesEntityPersistent tempSupplyFixed;
-            for(int i =0; i< peDTO.getFixedSuppliesUsedUUID().size(); i++){
-                if (!fixedSuppliesResource.existsByUUID(peDTO.getFixedSuppliesUsedUUID().get(i))){
-                    return new ResponseEntity<>(HttpStatusCode.valueOf(400));
-                }
-                tempSupplyFixed = fixedSuppliesResource.getByUUID(peDTO.getFixedSuppliesUsedUUID().get(i));
-                int quantity = tempSupplyFixed.getCounterInUseByServices();
-                tempSupplyFixed.setCounterInUseByServices(quantity+ 1);
-                fixedSuppliesResource.save(tempSupplyFixed);
-                tempSupplyFixed = null;
-            }
-        }
-        else {
-            condInvalid++;
-        }
-        if (condInvalid == 2) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
-        double totalExpenses = 0.0;
-        for(int i = 0; i< peDTO.getVariableSuppliesUsedUUID().size(); i++){
-            totalExpenses += variableSuppliesResource.getByUUID(peDTO.getVariableSuppliesUsedUUID().get(i)).getCostPerMeasure() * peDTO.getVariableSuppliesQuantityUsed().get(peDTO.getVariableSuppliesUsedUUID().get(i));
-        }
-        for(int i = 0; i< peDTO.getFixedSuppliesUsedUUID().size(); i++){
-            totalExpenses +=fixedSuppliesResource.getByUUID(peDTO.getFixedSuppliesUsedUUID().get(i)).getCostPerMinute() * peDTO.getAverageServiceDurationMinutes();
+        double totalExpenses = servicesService.getTotalExpenses(ue,peDTO);
+        switch ((int) totalExpenses){
+            case -1: return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+            case -2: return new ResponseEntity<>(HttpStatusCode.valueOf(406));
         }
         String UUIDgenerated = genUUID();
         ServiceEntity pe = new ServiceEntity(peDTO,totalExpenses,ue.getProfitMargin(), ue.getDesiredMonthlyIncome(), ue.getDaysWorkingWeekly(), ue.getHoursWorkingDaily());
@@ -105,33 +66,7 @@ public class ServiceController {
         if (productUUID == null) return ResponseEntity.status(400).build();
         ServiceEntityPersistent se = serviceResource.getByUUID(productUUID);
         if (se != null){
-            SuppliesEntityPersistent tempSupply;
-            if (se.getVariableSuppliesUsedUUID() != null){
-                if (!se.getVariableSuppliesUsedUUID().isEmpty()){
-                    for(int j = 0; j < se.getVariableSuppliesUsedUUID().size() ;j++) {
-                        tempSupply = variableSuppliesResource.getByUUID(se.getVariableSuppliesUsedUUID().get(j));
-                        int tempCounter = tempSupply.getCounterInUseByServices();
-                        tempSupply.setCounterInUseByServices(tempCounter - 1);
-                        variableSuppliesResource.save(tempSupply);
-                        tempSupply = null;
-                    }
-                }
-            }
-            FixedSuppliesEntityPersistent fixedTempSupply;
-            if (se.getFixedSuppliesUsedUUID() != null) {
-                if (!se.getFixedSuppliesUsedUUID().isEmpty()) {
-                    for (int j = 0; j < se.getFixedSuppliesUsedUUID().size(); j++) {
-                        fixedTempSupply = fixedSuppliesResource.getByUUID(se.getFixedSuppliesUsedUUID().get(j));
-                        int tempCounter = fixedTempSupply.getCounterInUseByServices();
-                        fixedTempSupply.setCounterInUseByServices(tempCounter - 1);
-                        fixedSuppliesResource.save(fixedTempSupply);
-                        fixedTempSupply = null;
-                    }
-                }
-            }
-            ue.getServicesUUIDList().remove(productUUID);
-            serviceResource.deleteByUUID(productUUID);
-            userResource.save(ue);
+            servicesService.removeSupplies(se,ue,productUUID);
             return new ResponseEntity<>(HttpStatusCode.valueOf(200));
         }
         return new ResponseEntity<>(HttpStatusCode.valueOf(404));

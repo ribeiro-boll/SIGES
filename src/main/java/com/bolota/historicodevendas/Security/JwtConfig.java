@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,9 +15,10 @@ import com.nimbusds.jose.jwk.source.ImmutableSecret;
 
 @Configuration
 public class JwtConfig {
-    //gerado por IA
+    @Value("${jwt.secret}")
+    private String secret;
     private String getAuthKey(){
-        return "5f31549749a6ff6871efded4d58c552431e1f8b761f50fc848481760dd66d6e0";
+        return secret;
     }
     private SecretKey secretKeyFromString(String s) {
         byte[] keyBytes = s.getBytes(StandardCharsets.UTF_8);

@@ -60,10 +60,6 @@ public class AllControllersLifeCycleFullTest {
         fixedSuppliesEntityUpdate.put("name","Energia elétrica");
         fixedSuppliesEntityUpdate.put("description","Conta mensal de energia do salão");
         fixedSuppliesEntityUpdate.put("suppliesValue",20.0);
-
-
-
-
     }
 
     @Test

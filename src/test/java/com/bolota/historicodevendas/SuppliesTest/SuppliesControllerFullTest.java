@@ -43,7 +43,7 @@ public class SuppliesControllerFullTest {
 
     @BeforeAll
     public static void populateHashmap(){
-        registerUser.put("login", "tester_1234");
+        registerUser.put("login", "tester_123456789");
         registerUser.put("passwordHash", "123456");
         registerUser.put("desiredMonthlyIncome", 6500.0);
         registerUser.put("daysWorkingWeekly", 5);
@@ -66,7 +66,7 @@ public class SuppliesControllerFullTest {
 
     @Test
     void shouldInsertAndDeleteVariableSupplies() throws Exception{
-        MvcResult register         = mockMvc.perform(post("/user/register").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(registerUser))).andReturn();
+        MvcResult register = mockMvc.perform(post("/user/register").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(registerUser))).andReturn();
 
         assertEquals(200, register.getResponse().getStatus());
         String jwt = register.getResponse().getContentAsString();
@@ -86,7 +86,9 @@ public class SuppliesControllerFullTest {
     @Test
     void shouldInsertAndUpdateAndDeleteFixedSupplies() throws Exception{
         MvcResult register         = mockMvc.perform(post("/user/register").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(registerUser))).andReturn();
-        assertEquals(200, register.getResponse().getStatus());
+        assertEquals(409, register.getResponse().getStatus());
+        registerUser.put("login","tester_1234569");
+        register = mockMvc.perform(post("/user/register").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(registerUser))).andReturn();
         String jwt = register.getResponse().getContentAsString();
         assertFalse(jwt.isEmpty());
         assertFalse(jwt.isBlank());
