@@ -1,6 +1,8 @@
-# SIGES
+# (SIGES) Sistema Integrado de Gestão de Serviços 
 
-O **SIGES** é uma aplicação fullstack para **gestão de serviços, insumos, precificação e histórico de vendas**, com foco em profissionais e pequenos negócios que trabalham com prestação de serviços recorrentes — por exemplo, salão, barbearia, estética e atendimento individual.
+<img width="456" height="290" alt="telaInicial" src="https://github.com/user-attachments/assets/3938b09e-c876-4398-9ff2-64492bc43aad" />
+
+O **SIGES** é uma aplicação fullstack para **gestão de serviços, insumos, precificação e histórico de vendas**, com foco em profissionais e pequenos negócios que trabalham com prestação de serviços recorrentes, por exemplo, salão, barbearia, estética e atendimento individual.
 
 O projeto centraliza:
 - cadastro e autenticação de usuários
@@ -45,7 +47,7 @@ O projeto centraliza:
 - [CI/CD e containerização](#cicd-e-containerização)
 - [Observações importantes de implementação](#observações-importantes-de-implementação)
 - [Melhorias futuras](#melhorias-futuras)
-- [Licença](#licença)
+- [Galeria](#galeria)
 
 ---
 
@@ -251,12 +253,9 @@ minutesWorking = hoursWorkingDaily * 60
 monthlyWorkingMinutes = daysWorkingWeekly * 4.33 * minutesWorking
 costPerMinute = desiredMonthlyIncome / monthlyWorkingMinutes
 
-serviceExpenses =
-  soma(custoPorMedidaDoInsumo * quantidadeUsada)
-  + soma(custoPorMinutoDoFixo * duraçãoDoServiço)
+serviceExpenses = soma(custoPorMedidaDoInsumo * quantidadeUsada) + soma(custoPorMinutoDoFixo * duraçãoDoServiço)
 
-suggestedPrice = (serviceExpenses + duração * costPerMinute)
-                 + ((serviceExpenses + duração * costPerMinute) * profitMargin / 100)
+suggestedPrice = (serviceExpenses + duração * costPerMinute) + ((serviceExpenses + duração * costPerMinute) * profitMargin / 100)
 
 finalProfit = salePrice - (serviceExpenses + duração * costPerMinute)
 ```
@@ -376,8 +375,6 @@ Para este snapshot do projeto, a configuração mais segura é usar:
 - **Java 21**
 - Docker + Docker Compose
 
-> Observação: o `pom.xml` declara `java.version = 17`, mas o `Dockerfile` e o workflow de publicação da imagem usam **Java 21**. Para evitar inconsistências, a recomendação prática é usar Java 21 localmente também.
-
 ---
 
 ### Opção 1 — Docker Compose
@@ -388,11 +385,7 @@ Sobe a aplicação com PostgreSQL:
 docker compose up --build
 ```
 
-A aplicação ficará disponível em:
-
-```text
-http://localhost:8080
-```
+A aplicação ficará disponível em rede LAN, com o sistema printando a URL de acesso
 
 Configuração usada no `compose.yaml`:
 - banco: `postgres:16`
@@ -955,11 +948,23 @@ Algumas evoluções que fazem sentido para o projeto:
 
 ---
 
-## Licença
+## Galeria
 
-Este snapshot do repositório **não contém uma licença definida**.
+<img width="609" height="272" alt="servicos" src="https://github.com/user-attachments/assets/2a397694-5def-4c3d-9888-4d8df3a14c52" />
 
-Se o projeto for publicado publicamente, vale adicionar uma licença explícita (por exemplo, MIT) para deixar claro como o código pode ser utilizado.
+<img width="609" height="272" alt="insumosVariaveis" src="https://github.com/user-attachments/assets/024de2e1-5abb-4d06-8039-8d3f2bb5f8e7" />
+
+<img width="609" height="272" alt="insumosFixos" src="https://github.com/user-attachments/assets/9d9721be-ac54-431c-bc55-b6c3f67c11dd" />
+
+<img width="609" height="272" alt="paginaDoExtratoMensal" src="https://github.com/user-attachments/assets/e635415b-7ca3-4d31-a3ca-733ad334c54d" />
+
+<img width="609" height="272" alt="paginaEdicaoPerfil" src="https://github.com/user-attachments/assets/461a1187-96ba-4928-b35e-e2d4527739c1" />
+
+---
+
+### Exemplo de extrato (Apenas a primeira pagina) 
+
+<img width="1304" height="594" alt="exemploExtratoMensal" src="https://github.com/user-attachments/assets/5ccc9e30-9fec-4dfa-be3c-1a2ba616d4b7" />
 
 ---
 
@@ -972,16 +977,12 @@ Se o projeto for publicado publicamente, vale adicionar uma licença explícita 
 - [x] Definir o endpoint e o payload de atualização de perfil
 - [x] Garantir que alterações no perfil reflitam corretamente nas configurações de precificação, quando aplicável
 
-## Próximo passo
-
 - [x] Criar o módulo de custos fixos mensais
 - [x] Permitir cadastrar o valor do mês anterior para cada custo fixo
 - [x] Separar conceitualmente custos fixos de insumos variáveis no backend
 - [x] Alinhar com o front a interface de cadastro, edição e visualização dos custos fixos
 - [x] Implementar lembrete visual no front para o usuário atualizar os valores mensalmente
 - [x] Definir a regra do lembrete para aparecer a partir de uma data fixa, como o dia 5 de cada mês
-
-## Depois
 
 - [x] Implementar extrato mensal
 - [x] Definir o conteúdo do extrato mensal, incluindo:
