@@ -1,7 +1,9 @@
+
 services:
   db:
     image: postgres:16
     environment:
+
       POSTGRES_DB: siges
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -11,6 +13,7 @@ services:
     depends_on:
       - db
     environment:
+      JWT_SECRET: ${JWT_SECRET}
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/siges
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
