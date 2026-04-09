@@ -10,8 +10,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bolota.historicodevendas.Service.ProductService.genJSON;
-
 
 @Entity
 @Getter
@@ -79,7 +77,7 @@ public class ServiceEntityPersistent {
         this.sugestedPrice = pe.getSuggestedPrice();
         this.averageServiceDurationMinutes = pe.getAverageServiceDurationMinutes();
         this.variableSuppliesUsedUUID = pe.getVariableSuppliesUsedUUID();
-        this.suppliesQuantity = genJSON(pe.getSuppliesQuantity());
+        this.suppliesQuantity = new ObjectMapper().writeValueAsString(pe.getSuppliesQuantity());
         this.fixedSuppliesUsedUUID = pe.getFixedSuppliesUsedUUID();
         this.UUID = UUID;
     }

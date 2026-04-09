@@ -8,6 +8,7 @@ import com.bolota.historicodevendas.Entities.UserEntity;
 import com.bolota.historicodevendas.Resource.FixedSuppliesResource;
 import com.bolota.historicodevendas.Resource.UserResource;
 import com.bolota.historicodevendas.Resource.VariableSuppliesResource;
+import com.bolota.historicodevendas.Service.SuppliesService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
@@ -19,14 +20,16 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/supplies")
 public class SuppliesController {
-    @Autowired
     VariableSuppliesResource variableSuppliesResource;
-
-    @Autowired
     FixedSuppliesResource fixedSuppliesResource;
-
-    @Autowired
     UserResource userResource;
+    SuppliesService suppliesService;
+    public SuppliesController(VariableSuppliesResource variableSuppliesResource, FixedSuppliesResource fixedSuppliesResource, UserResource userResource, SuppliesService suppliesService){
+        this.fixedSuppliesResource = fixedSuppliesResource;
+        this.variableSuppliesResource = variableSuppliesResource;
+        this.userResource = userResource;
+        this.suppliesService = suppliesService;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<String> registerSupply(@AuthenticationPrincipal Jwt jwt, @RequestBody SuppliesEntity se){
@@ -100,13 +103,7 @@ public class SuppliesController {
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
         if (ue == null) return ResponseEntity.status(401).build();
         if(!ue.getFixedSuppliesUsedUUID().contains((String)fsep.getUUID())) return new ResponseEntity<>(HttpStatusCode.valueOf(403));
-        fsepLocalEntity.setCounterInUseByServices(fsep.getCounterInUseByServices());
-        fsepLocalEntity.setDescription(fsep.getDescription());
-        fsepLocalEntity.setFixedSupplyDate(fsep.getFixedSupplyDate());
-        fsepLocalEntity.setName(fsep.getName());
-        fsepLocalEntity.setSupplyTotalCost(fsep.getSupplyTotalCost());
-        fsepLocalEntity.setCondUpdatePopup(fsep.isCondUpdatePopup());
-        fsepLocalEntity.generateCostPerMinute();
+        suppliesService.editFixedSupply(fsepLocalEntity,fsep);
         fixedSuppliesResource.save(fsepLocalEntity);
         return new ResponseEntity<>(HttpStatusCode.valueOf(200));
     }

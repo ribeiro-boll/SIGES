@@ -33,30 +33,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static com.bolota.historicodevendas.Service.ProductService.toPage;
+import static com.bolota.historicodevendas.Service.SuppliesService.toPage;
 
 @RestController
 @RequestMapping("/metrics")
 public class MetricsController {
-    @Autowired
-    JwtDecoder jwtDecoder;
-
-    @Autowired
     UserResource userResource;
-
-    @Autowired
     ServiceResource serviceResource;
-
-    @Autowired
     VariableSuppliesResource variableSuppliesResource;
-
-
-    @Autowired
     FixedSuppliesResource fixedSuppliesResource;
-
-    @Autowired
     PdfGeneratorService pdfGeneratorService;
-
+    public MetricsController(UserResource userResource, ServiceResource serviceResource, VariableSuppliesResource variableSuppliesResource, FixedSuppliesResource fixedSuppliesResource, PdfGeneratorService pdfGeneratorService){
+        this.userResource = userResource;
+        this.serviceResource = serviceResource;
+        this.variableSuppliesResource  =variableSuppliesResource;
+        this.fixedSuppliesResource = fixedSuppliesResource;
+        this.pdfGeneratorService = pdfGeneratorService;
+    }
     @GetMapping("/services")
     public ResponseEntity<Page<ServiceEntityPersistent>> sendServices(@AuthenticationPrincipal Jwt jwt, @PageableDefault(size = 10) Pageable pageable){
         if(jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
@@ -100,28 +93,12 @@ public class MetricsController {
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
         if (ue == null) return ResponseEntity.status(401).build();
         if (!userResource.existsByLogin(jwt.getSubject())) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
-        LocalDate ldInit = LocalDate.of(date.getYear(), date.getMonth(), 1);
-        LocalDate ldEnd  = LocalDate.of(date.getYear(), date.getMonth(), date.lengthOfMonth());
-        List<ServiceEntityPersistent> servicesInMonth = serviceResource.findByUUIDInAndServiceDateBetween(ue.getServicesUUIDList(),ldInit,ldEnd);
-        if (servicesInMonth == null) return ResponseEntity.status(404).build();
-        if (servicesInMonth.isEmpty()) return ResponseEntity.status(404).build();
-        ArrayList<ServiceReportDTO> srDTOList = new ArrayList<>();
-        int nmr = 0;
-        for(ServiceEntityPersistent i : servicesInMonth) {
-            srDTOList.add(new ServiceReportDTO(i));
+        MonthlyReportDTO mrDTO = pdfGeneratorService.generateMonthlyReportDTO(ue,date);
+        if (mrDTO == null){
+            return new ResponseEntity<>(HttpStatusCode.valueOf(404));
         }
-        double grossTotal = 0.0, liquidTotal= 0.0 ;
-        for(ServiceReportDTO i : srDTOList) {
-            grossTotal += i.getSalePrice();
-            liquidTotal += i.getFinalProfit();
-        }
-        Locale locale = new Locale("pt", "BR");
-        MonthlyReportDTO mrDTO = new MonthlyReportDTO(date.getMonth().getDisplayName(TextStyle.FULL, locale),date.getYear(),"Relatório consolidado dos serviços realizados no mês.",
-                LocalDate.now(ZoneId.of("America/Sao_Paulo")).toString(),ldInit.toString() + " até " + ldEnd.toString(),
-                "Valores sujeitos a revisão. Em caso de dúvidas, entre em contato",
-                grossTotal,liquidTotal,liquidTotal/srDTOList.size(),srDTOList.size(),srDTOList);
-        byte[] pdfFile = pdfGeneratorService.generatePdf(mrDTO);
         String filename = "extrato-mensal-" + year + "-" + String.format("%02d", month) + ".pdf";
+        byte[] pdfFile = pdfGeneratorService.generatePdf(mrDTO);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                 .contentType(MediaType.APPLICATION_PDF)
