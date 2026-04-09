@@ -29,7 +29,7 @@ public class SuppliesController {
     UserResource userResource;
 
     @PostMapping("/register")
-    public ResponseEntity<Void> registerSupply(@AuthenticationPrincipal Jwt jwt, @RequestBody SuppliesEntity se){
+    public ResponseEntity<String> registerSupply(@AuthenticationPrincipal Jwt jwt, @RequestBody SuppliesEntity se){
         if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
         if (ue == null || se == null) return ResponseEntity.status(401).build();
@@ -41,10 +41,10 @@ public class SuppliesController {
         ue.getVariableSuppliesUsedUUID().add(UUIDgen);
         userResource.save(ue);
         variableSuppliesResource.save(sep);
-        return new ResponseEntity<>(HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(UUIDgen,HttpStatusCode.valueOf(200));
     }
     @PostMapping("/register_fixed")
-    public ResponseEntity<Void> registerFixedSupply(@AuthenticationPrincipal Jwt jwt, @RequestBody FixedSuppliesEntity fe){
+    public ResponseEntity<String> registerFixedSupply(@AuthenticationPrincipal Jwt jwt, @RequestBody FixedSuppliesEntity fe){
         if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
         if (ue == null || fe == null) return ResponseEntity.status(401).build();
@@ -56,7 +56,7 @@ public class SuppliesController {
         ue.getFixedSuppliesUsedUUID().add(UUIDgen);
         userResource.save(ue);
         fixedSuppliesResource.save(sep);
-        return new ResponseEntity<>(HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(UUIDgen,HttpStatusCode.valueOf(200));
     }
 
     @Transactional

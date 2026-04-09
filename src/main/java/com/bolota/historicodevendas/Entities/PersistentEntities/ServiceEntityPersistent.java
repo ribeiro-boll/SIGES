@@ -8,6 +8,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.bolota.historicodevendas.Service.ProductService.genJSON;
 
@@ -51,12 +52,12 @@ public class ServiceEntityPersistent {
     @Column(name = "sugestedPrice", nullable = false)
     private double sugestedPrice;
 
-    @Lob
-    @Column(name = "variableSuppliesUsed", nullable = true)
-    private ArrayList<String> variableSuppliesUsedUUID;
-    @Lob
-    @Column(name = "fixedSuppliesUsed", nullable = true)
-    private ArrayList<String> fixedSuppliesUsedUUID;
+    @ElementCollection
+    @CollectionTable(name = "variableSuppliesUsedUUIDService", joinColumns = @JoinColumn(name = "UUID"))
+    private List<String> variableSuppliesUsedUUID;
+    @ElementCollection
+    @CollectionTable(name = "fixedSuppliesUsedUUIDService", joinColumns = @JoinColumn(name = "UUID"))
+    private List<String> fixedSuppliesUsedUUID;
 
     @Column(name = "UUID", nullable = false)
     private String UUID;

@@ -38,7 +38,7 @@ public class ServiceController {
     private UserResource userResource;
 
     @PostMapping("/register")
-    public ResponseEntity<Void> registerService(@AuthenticationPrincipal Jwt jwt, @RequestBody ServiceEntityDTO peDTO){
+    public ResponseEntity<String> registerService(@AuthenticationPrincipal Jwt jwt, @RequestBody ServiceEntityDTO peDTO){
         int condInvalid = 0;
         if (jwt == null) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
         UserEntity ue = userResource.getByLogin(jwt.getSubject());
@@ -94,7 +94,7 @@ public class ServiceController {
         ue.getServicesUUIDList().add(UUIDgenerated);
         userResource.save(ue);
         serviceResource.save(pep);
-        return new ResponseEntity<>(HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(UUIDgenerated,HttpStatusCode.valueOf(200));
     }
     @Transactional
     @DeleteMapping("/remove")

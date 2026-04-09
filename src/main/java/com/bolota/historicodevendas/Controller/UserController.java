@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -50,7 +51,7 @@ public class UserController {
     // key: password -> password
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody HashMap<String, String> loginInfo){
+    public ResponseEntity<String> login(@RequestBody Map<String, String> loginInfo){
         if (loginInfo == null) return ResponseEntity.status(400).build();
         if (loginInfo.get("login") == null || loginInfo.get("password") == null) return ResponseEntity.status(400).build();
         if (loginInfo.get("login").trim().isEmpty() || loginInfo.get("password").trim().isEmpty()) return ResponseEntity.status(400).build();

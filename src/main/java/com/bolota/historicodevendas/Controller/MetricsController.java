@@ -30,6 +30,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import static com.bolota.historicodevendas.Service.ProductService.toPage;
@@ -101,7 +102,7 @@ public class MetricsController {
         if (!userResource.existsByLogin(jwt.getSubject())) return new ResponseEntity<>(HttpStatusCode.valueOf(401));
         LocalDate ldInit = LocalDate.of(date.getYear(), date.getMonth(), 1);
         LocalDate ldEnd  = LocalDate.of(date.getYear(), date.getMonth(), date.lengthOfMonth());
-        ArrayList<ServiceEntityPersistent> servicesInMonth = serviceResource.findByUUIDInAndServiceDateBetween(ue.getServicesUUIDList(),ldInit,ldEnd);
+        List<ServiceEntityPersistent> servicesInMonth = serviceResource.findByUUIDInAndServiceDateBetween(ue.getServicesUUIDList(),ldInit,ldEnd);
         if (servicesInMonth == null) return ResponseEntity.status(404).build();
         if (servicesInMonth.isEmpty()) return ResponseEntity.status(404).build();
         ArrayList<ServiceReportDTO> srDTOList = new ArrayList<>();

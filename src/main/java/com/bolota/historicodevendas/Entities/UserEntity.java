@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -31,12 +32,15 @@ public class UserEntity {
     private int daysWorkingWeekly;
     private double hoursWorkingDaily;
     private double profitMargin;
-    @Lob
-    private ArrayList<String> servicesUUIDList;
-    @Lob
-    private ArrayList<String> variableSuppliesUsedUUID;
-    @Lob
-    private ArrayList<String> fixedSuppliesUsedUUID;
+    @ElementCollection
+    @CollectionTable(name = "servicesUUIDList", joinColumns = @JoinColumn(name = "UUID"))
+    private List<String> servicesUUIDList;
+    @ElementCollection
+    @CollectionTable(name = "variableSuppliesUsedUUID", joinColumns = @JoinColumn(name = "UUID "))
+    private List<String> variableSuppliesUsedUUID;
+    @ElementCollection
+    @CollectionTable(name = "fixedSuppliesUsedUUID", joinColumns = @JoinColumn(name = "UUID"))
+    private List<String> fixedSuppliesUsedUUID;
     public UserEntity(UserEntityDTO userEntityDTO, String passwordHash){
         this.login = userEntityDTO.getLogin();
         this.passwordHash = passwordHash;
