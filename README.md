@@ -3,14 +3,10 @@
 [![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](#)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.5-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](#)
 [![Spring Security](https://img.shields.io/badge/Spring_Security-JWT-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)](#)
-[![JWT](https://img.shields.io/badge/Auth-JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](#)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](#)
 [![H2](https://img.shields.io/badge/H2-Tests_&_Dev-09476B?style=for-the-badge&logo=h2database&logoColor=white)](#)
-[![Maven](https://img.shields.io/badge/Maven-Build-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)](#)
 [![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=for-the-badge&logo=docker&logoColor=white)](#)
 [![Thymeleaf](https://img.shields.io/badge/Thymeleaf-PDF_Templates-005F0F?style=for-the-badge&logo=thymeleaf&logoColor=white)](#)
-[![PDF Reports](https://img.shields.io/badge/PDF-OpenHTMLtoPDF-B30B00?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](#)
-[![REST API](https://img.shields.io/badge/API-REST-FF6F00?style=for-the-badge&logo=fastapi&logoColor=white)](#)
 
 # (SIGES) Sistema Integrado de Gestão de Serviços
 
