@@ -1,6 +1,7 @@
-# (SIGES) Sistema Integrado de Gestão de Serviços 
-
 <img width="456" height="290" alt="telaInicial" src="https://github.com/user-attachments/assets/3938b09e-c876-4398-9ff2-64492bc43aad" />
+
+
+# (SIGES) Sistema Integrado de Gestão de Serviços 
 
 O **SIGES** é uma aplicação fullstack para **gestão de serviços, insumos, precificação e histórico de vendas**, com foco em profissionais e pequenos negócios que trabalham com prestação de serviços recorrentes, por exemplo, salão, barbearia, estética e atendimento individual.
 
