@@ -12,7 +12,7 @@
 [![PDF Reports](https://img.shields.io/badge/PDF-OpenHTMLtoPDF-B30B00?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](#)
 [![REST API](https://img.shields.io/badge/API-REST-FF6F00?style=for-the-badge&logo=fastapi&logoColor=white)](#)
 
-# SIGES Sistema Integrado de Gestão de Serviços
+# (SIGES) Sistema Integrado de Gestão de Serviços
 
 Sistema full stack para **gestão de serviços, custos, precificação e histórico de vendas**.
 
